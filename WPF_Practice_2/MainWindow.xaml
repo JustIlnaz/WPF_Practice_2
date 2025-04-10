@@ -7,6 +7,29 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
-        
+        <StackPanel>
+            <TextBlock Text="Введите ИМЯ:" Margin="0,0,0,5" HorizontalAlignment="Center"/>
+            <TextBox x:Name="NameTextBox" Width="200" Height="30" Margin="0,0,0,10"/>
+
+
+            <TextBlock Text="Выберите язык:" Margin="0,0,0,5" HorizontalAlignment="Center"/>
+            <ComboBox x:Name="LanguageComboBox" Width="200" Height="30" Margin="0,0,0,10">
+                <ComboBoxItem Content="Русский"/>
+                <ComboBoxItem Content="Английский"/>
+            </ComboBox>
+
+
+            <TextBlock Text="Выберите ДАТУ РОЖДЕНИЯ:" Margin="0,0,0,5" HorizontalAlignment="Center"/>
+            <DatePicker x:Name="BirthDatePicker" Width="200" Height="30" Margin="0,0,0,10"/>
+
+
+            <Button x:Name="GenerateButton_Click_1" Content="Сгенерировать" Width="100" Height="30" Click="GenerateButton_Click" Margin="0,10,0,0"/>
+
+
+            <TextBlock x:Name="ResultTextBlock" Text="ЛОГИН/ПАРОЛЬ:" Margin="0,20,0,0" FontWeight="Bold"  HorizontalAlignment="Center"/>
+            <TextBlock x:Name="LoginTextBlock" Text="" Margin="0,5,0,0 " HorizontalAlignment="Center" Width="400" Height="28"/>
+            <TextBlock x:Name="PasswordTextBlock" Text="" Margin="0,5,0,0" HorizontalAlignment="Center" Width="400" Height="28"/>
+        </StackPanel>
     </Grid>
 </Window>
+    
