@@ -27,13 +27,13 @@ namespace WPF_Practice_2
         }
         private void GenerateButton_Click(object sender, RoutedEventArgs e)
         {
-            // Получение данных из интерфейса   
+
+            // Получаем данные из интерфейса
             string name = NameTextBox.Text.Trim();
             DateTime? birthDate = BirthDatePicker.SelectedDate;
-            ComboBoxItem languageItem = LanguageComboBox.SelectedItem as ComboBoxItem;
-            string language = languageItem?.Content.ToString();
+            string language = (LanguageComboBox.SelectedItem as ComboBoxItem)?.Content.ToString();
 
-            // Проверка ввода
+            // Проверяем, что все поля заполнены
             if (string.IsNullOrEmpty(name))
             {
                 MessageBox.Show("Введите имя!");
@@ -44,75 +44,106 @@ namespace WPF_Practice_2
                 MessageBox.Show("Выберите дату рождения!");
                 return;
             }
-            if (language == null)
+            if (string.IsNullOrEmpty(language))
             {
                 MessageBox.Show("Выберите язык!");
                 return;
             }
 
-            // Генерация ЛОГИНА
-            string login = GenerateLogin(name, birthDate.Value, language);
+            //Проверка ввода
+            bool hasRussianLetters = name.Any(c => c >= 'А' && c <= 'я'); // Кириллические символы
+            bool isRussianLanguage = language == "Русский";
 
-            // Генерация ПАРОЛЯ
+            // сравниваем язык ввода имени с выбранным языком
+            if (hasRussianLetters && !isRussianLanguage)
+            {
+                MessageBox.Show("Имя написано на русском, но выбран английский язык!");
+                return;
+            }
+            if (!hasRussianLetters && isRussianLanguage)
+            {
+                MessageBox.Show("Имя написано на английском, но выбран русский язык!");
+                return;
+            }
+
+
+
+            // Генерируем логин и пароль
+            string login = GenerateLogin(name, birthDate.Value, language);
             string password = GeneratePassword();
 
-            // Вывод результата
+            // Выводим результат
             LoginTextBlock.Text = $"ЛОГИН: {login}";
             PasswordTextBlock.Text = $"ПАРОЛЬ: {password}";
         }
 
         private string GenerateLogin(string name, DateTime birthDate, string language)
         {
-            // Определение алфавита в зависимости от языка
-            string alphabet = language == "Русский"
-                ? "абвгдеёжзийклмнопрстуфхцчшщъыьэюя"
-                : "abcdefghijklmnopqrstuvwxyz";
+            // Определяем алфавит в зависимости от языка
+            string alphabet = "";
+            if (language == "Русский")
+            {
+                alphabet = "абвгдеёжзийклмнопрстуфхцчшщъыьэюя";
+            }
+            else
+            {
+                alphabet = "abcdefghijklmnopqrstuvwxyz";
+            }
 
-            // Преобразование имени в числовую последовательность
-            string numericName = string.Concat(name.ToLower().Select(c =>
+            // Преобразуем имя в числовую последовательность
+            string numericName = "";
+            foreach (char c in name.ToLower())
             {
                 int index = alphabet.IndexOf(c);
-                return index >= 0 ? (index + 1).ToString() : "";
-            }));
+                if (index >= 0)
+                {
+                    numericName += (index + 1).ToString();
+                }
+            }
 
-            // Сумма цифр даты рождения
-            int dateSum = birthDate.Day / 10 + birthDate.Day % 10 +
-                          birthDate.Month / 10 + birthDate.Month % 10 +
-                          birthDate.Year.ToString().Sum(c => c - '0');
+            // Считаем сумму цифр из даты рождения
+            int dateSum = 0;
+            dateSum += birthDate.Day / 10 + birthDate.Day % 10;
+            dateSum += birthDate.Month / 10 + birthDate.Month % 10;
+            foreach (char c in birthDate.Year.ToString())
+            {
+                dateSum += c - '0';
+            }
 
-            // Формирование ЛОГИНА
+            // Возвращаем логин
             return numericName + dateSum;
         }
 
         private string GeneratePassword()
         {
             Random random = new Random();
-            string password = "";
             string digits = "0123456789";
             string letters = "abcdefghijklmnopqrstuvwxyz";
             string upperLetters = letters.ToUpper();
 
-            // Добавление заглавной буквы
-            password += upperLetters[random.Next(upperLetters.Length)];
+            // Начинаем с заглавной буквы
+            string password = upperLetters[random.Next(upperLetters.Length)].ToString();
 
-            // Добавление случайных символов
-            for (int i = 1; i < 10; i++)
+            // Добавляем случайные символы
+            while (password.Length < 9)
             {
                 if (password.Count(char.IsDigit) < 5 && random.Next(2) == 0)
                 {
                     char digit = digits[random.Next(digits.Length)];
                     if (password.LastOrDefault() != digit)
+                    {
                         password += digit;
+                    }
                 }
                 else
                 {
-                    char letter = letters[random.Next(letters.Length)];
-                    password += letter;
+                    password += letters[random.Next(letters.Length)];
                 }
             }
 
-            // Добавление специального символа
-            password = password.Insert(random.Next(password.Length), specialSymbols[random.Next(specialSymbols.Length)]);
+            // Добавляем специальный символ
+            int position = random.Next(password.Length);
+            password = password.Insert(position, specialSymbols[random.Next(specialSymbols.Length)]);
 
             return password;
         }
